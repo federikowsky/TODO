@@ -1,0 +1,109 @@
+{
+	"name": "td-todo",
+	"displayName": "todo",
+	"description": "Minimalistic TODO file support with syntax highlighting, checkbox toggling, folding and outline view for .td files.",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.98.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "td-todo.enableColors",
+				"title": "Enable TD Color Support"
+			},
+			{
+				"command": "td-todo.toggleCheckbox",
+				"title": "Toggle Checkbox"
+			},
+			{
+				"command": "td-todo.togglePriority",
+				"title": "Toggle Priority"
+			},
+			{
+				"command": "td-todo.setPriorityHigh",
+				"title": "Set Priority High"
+			},
+			{
+				"command": "td-todo.setPriorityMedium",
+				"title": "Set Priority Medium"
+			},
+			{
+				"command": "td-todo.setPriorityNone",
+				"title": "Remove Priority"
+			},
+			{
+				"command": "td-todo.applyDefaultsToBlock",
+				"title": "Applica Defaults alla Riga Corrente"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "td-todo.toggleCheckbox",
+				"key": "ctrl+shift+enter",
+				"when": "editorTextFocus && editorLangId == 'td'"
+			},
+			{
+				"command": "td-todo.togglePriority",
+				"key": "ctrl+shift+.",
+				"when": "editorTextFocus && editorLangId == 'td'"
+			},
+			{
+				"command": "td-todo.setPriorityHigh",
+				"key": "ctrl+shift+h",
+				"when": "editorTextFocus && editorLangId == 'td'"
+			},
+			{
+				"command": "td-todo.setPriorityMedium",
+				"key": "ctrl+shift+m",
+				"when": "editorTextFocus && editorLangId == 'td'"
+			},
+			{
+				"command": "td-todo.setPriorityNone",
+				"key": "ctrl+shift+n",
+				"when": "editorTextFocus && editorLangId == 'td'"
+			},
+			{
+				"command": "td-todo.applyDefaultsToBlock",
+				"key": "ctrl+shift+s",
+				"when": "editorTextFocus && editorLangId == 'td'"
+			}
+		],
+		"languages": [
+			{
+				"id": "td",
+				"aliases": [
+					"TD Todo",
+					"td"
+				],
+				"extensions": [
+					".td",
+					".todo"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "td",
+				"scopeName": "source.td",
+				"path": "./syntaxes/td.tmLanguage.json"
+			}
+		]
+	},
+	"scripts": {
+		"compile": "tsc -p ./"
+	},
+	"devDependencies": {
+		"@types/uuid": "^10.0.0",
+		"@types/vscode": "^1.98.0",
+		"typescript": "^5.8.2"
+	},
+	"dependencies": {
+		"uuid": "^11.1.0"
+	}
+}

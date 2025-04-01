@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "target": "es2023",
+      "module": "commonjs",
+      "lib": ["es2023", "dom"],
+      "outDir": "out",
+      "rootDir": "src",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "sourceMap": true, // Aggiungi questa riga
+      "inlineSources": true // Aggiungi questa riga
+    },
+    "include": ["src"]
+  }

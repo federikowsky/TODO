@@ -1,0 +1,47 @@
+{
+    "name": "TD Todo",
+    "scopeName": "source.td",
+    "fileTypes": ["td", "todo"],
+    "patterns": [
+      {
+        "name": "markup.heading.td",
+        "match": "^#.*$"
+      },
+      {
+        "name": "markup.task.todo.normal.td",
+        "match": "- \\[ \\] .*"
+      },
+      {
+        "name": "markup.line.task.done.td",
+        "match": "- \\[X\\] .*"
+      },
+      {
+        "name": "markup.task.urgent.high.td",
+        "match": "- \\[!\\] .*"
+      },
+      {
+        "name": "markup.task.urgent.medium.td",
+        "match": "- \\[~\\] .*"
+      },
+      {
+        "name": "entity.name.tag.td",
+        "match": "@\\w+"
+      },
+      {
+        "name": "support.function.meta.td",
+        "match": "@\\w+\\([^)]*\\)"
+      },
+      {
+        "name": "markup.note.blockquote.td",
+        "match": "^> .*"
+      },
+      {
+        "name": "comment.line.double-slash.td",
+        "match": "((//+)|(--+)).*"
+      },
+      {
+        "name": "invalid.illegal.double-exclam.td",
+        "match": "!!"
+      }
+    ]
+  }
