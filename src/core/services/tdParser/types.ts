@@ -32,7 +32,6 @@ export interface Range {
     range: Range;
     parent?: ASTNode;           // link al nodo genitore
     children: ASTNode[];        // nodi figli
-    version: number;            // incrementato a ogni modifica
     text: string;               // testo originale di questa riga/blocco
   }
   
@@ -53,7 +52,7 @@ export interface Range {
     type: 'task';
     checkbox: string; // indica priorità o completato
     status: 'todo' | 'done';
-    priority: 'low' | 'medium' | 'high';
+    priority: 'none' | 'low' | 'medium' | 'high';
     indent: number;
     meta: Record<string, MetaValue>;
     notes: NoteNode[];
@@ -79,14 +78,3 @@ export interface Range {
     | NoteNode
     | MetadataNode;
   
-  /**
-   * Rappresentazione finale del documento
-   */
-  export interface ParsedTD {
-    /** Radice: con `children[]` che conterrà sezioni, tasks, note, meta, etc. */
-    root: RootNode;
-    /** Lista di tutti i diagnostic presenti */
-    diagnostics: Diagnostic[];
-    /** versione del parse (incrementata a ogni update) */
-    version: number;
-  }

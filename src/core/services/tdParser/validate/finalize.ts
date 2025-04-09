@@ -8,7 +8,7 @@ import {
   NoteNode,
   MetadataNode,
   Diagnostic
-} from '../ast/types';
+} from '../types';
 
 import { validateSection } from './validators/validateSection';
 import { validateTask } from './validators/validateTask';
@@ -167,11 +167,11 @@ export class ASTFinalizer {
   }
 
   // Esegue la validazione completa dell'AST in una sola traversata.
-  public finalizeFull(root: RootNode, baseDiagnostic: Diagnostic[]): Diagnostic[] {
+  public finalizeFull(root: RootNode): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
     const context: MultiLineContext = {};
     this.dfsValidate(root, diagnostics, context);
-    const flattened = this.flattenDiagnostics(baseDiagnostic, diagnostics);
+    const flattened = this.flattenDiagnostics([], diagnostics);
     flattened.sort((a, b) => a.line - b.line);
     return flattened;
   }

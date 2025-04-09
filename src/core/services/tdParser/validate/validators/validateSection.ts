@@ -1,5 +1,5 @@
 // src/core/services/tdParser/validators/validateSection.ts
-import { SectionNode, Diagnostic } from '../../ast/types';
+import { SectionNode, Diagnostic } from '../../types';
 import { stripInlineComment } from '../../utils/stripInlineComment';
 
 export function validateSection(node: SectionNode): Diagnostic[] {

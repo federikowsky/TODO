@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { toggleCheckbox } from './commands/toggleCheckbox';
 import { setPriority } from './commands/setPriority';
 import { togglePriority } from './commands/togglePriority';
-import { promptEnableColors } from './utils/messages';
+import { promptEnableColors } from './infrastructure/vscode/messages';
 import { configSnippet } from './config/color';
 import { tdDocumentSymbolProvider } from './infrastructure/vscode/tdDocumentProvider';
 import { tdFoldingProvider } from './infrastructure/vscode/tdFoldingProvider';

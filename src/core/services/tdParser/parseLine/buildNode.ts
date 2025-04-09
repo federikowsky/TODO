@@ -9,7 +9,7 @@ import {
     Diagnostic,
     ASTNode,
     Range
-} from '../ast/types';
+} from '../types';
 
 // Interfaccia di ritorno comune per la creazione di un nodo
 export interface BuildNodeResult<T extends ASTNode> {
@@ -37,7 +37,6 @@ export function buildSectionNode(
         type: 'section',
         range: { startLine: lineNumber, endLine: lineNumber } as Range,
         children: [],
-        version: 1,
         text: rawLine,
         level,  // valore grezzo
         title   // valore grezzo
@@ -58,17 +57,22 @@ export function buildTaskNode(
     const trimmed = rawLine.trimStart();
     const match = trimmed.match(/^- \[(.*)\]\s*(.*)/)!;
     const checkbox = match[1];
+
+    let priority: TaskNode['priority'] = 'none';
+    if (checkbox === '!') priority = 'high';
+    else if (checkbox === '~') priority = 'medium';
+    else if (checkbox.trim() === '') priority = 'low';
+
     const node: TaskNode = {
         id: `task-${lineNumber}`,
         type: 'task',
         range: { startLine: lineNumber, endLine: lineNumber } as Range,
         children: [],
-        version: 1,
         text: rawLine,
         indent,
         checkbox,
         status: checkbox === 'X' ? 'done' : 'todo', // calcolato direttamente
-        priority: 'medium', // valore di default; eventuali errori saranno gestiti in validazione
+        priority,
         meta: {},
         notes: []
     };
@@ -90,7 +94,6 @@ export function buildMetaNode(
         type: 'meta',
         range: { startLine: lineNumber, endLine: lineNumber } as Range,
         children: [],
-        version: 1,
         text: rawLine,
         meta: {} // i dati grezzi verranno processati dai validator
     };
@@ -112,7 +115,6 @@ export function buildDefaultsNode(
         type: 'defaults',
         range: { startLine: lineNumber, endLine: lineNumber } as Range,
         children: [],
-        version: 1,
         text: rawLine,
         meta: {}
     };
@@ -134,7 +136,6 @@ export function buildNoteNode(
         type: 'note',
         range: { startLine: lineNumber, endLine: lineNumber } as Range,
         children: [],
-        version: 1,
         text: rawLine,
         indent
     };

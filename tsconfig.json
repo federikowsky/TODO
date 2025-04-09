@@ -8,8 +8,9 @@
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
-      "sourceMap": true, // Aggiungi questa riga
-      "inlineSources": true // Aggiungi questa riga
+      "sourceMap": true,
+      "inlineSources": true,
+      "jsx": "react"
     },
     "include": ["src"]
   }

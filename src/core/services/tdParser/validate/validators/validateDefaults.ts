@@ -1,5 +1,5 @@
 // src/core/services/tdParser/validators/validateDefaults.ts
-import { MetadataNode, Diagnostic } from '../../ast/types';
+import { MetadataNode, Diagnostic } from '../../types';
 import { stripInlineComment } from '../../utils/stripInlineComment';
 import { validateMeta } from './validateMeta';
 
@@ -40,7 +40,6 @@ export function validateDefaults(node: MetadataNode): Diagnostic[] {
     type: 'meta',
     range: node.range,
     children: [],
-    version: node.version,
     text: content,
     meta: {}
   } as MetadataNode;

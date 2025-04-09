@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ASTNode, RootNode } from '../ast/types';
+import { ASTNode, RootNode } from './types';
 
 /**
  * ASTRepository:
@@ -18,7 +18,6 @@ export class ASTRepository {
       range: { startLine: 0, endLine: 0 },
       parent: undefined,
       children: [],
-      version: 1,
       text: 'ROOT'
     };
     this.lineNodes = Array(lineCount).fill(null);
@@ -83,6 +82,16 @@ export class ASTRepository {
     }
     // Clear parent reference
     return orphans;
+  }
+
+
+  /**
+   * moveNode: rimuove il nodo e lo reinserisce sotto un nuovo parent.
+   * - Non cambia le proprietà del nodo, solo il parent.
+   */
+  public moveNode(node: ASTNode, newParent: ASTNode): void {
+    this.removeNode(node);
+    this.insertNode(node, newParent, node.range.startLine);
   }
 
   /**

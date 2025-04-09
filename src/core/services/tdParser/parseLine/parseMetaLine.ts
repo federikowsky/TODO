@@ -1,7 +1,7 @@
 // src/core/tdParser/utils/parseMetaLine.ts
 
-import { Diagnostic } from '../ast/types';
-import { MetaValue } from '../ast/types';
+import { Diagnostic } from '../types';
+import { MetaValue } from '../types';
 
 const PRIO_VALUES = ['high', 'medium', 'low'] as const;
 type PrioValue = (typeof PRIO_VALUES)[number];

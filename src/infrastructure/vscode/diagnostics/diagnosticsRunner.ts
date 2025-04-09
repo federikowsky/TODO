@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
-import { ASTDocument } from '../../../core/services/tdParser';
+import { ASTDocumentService } from '../../../core/services/tdParser/ASTDocumentService';
 
 export class DiagnosticsRunner {
   private static instance: DiagnosticsRunner;
   private diagnosticCollection: vscode.DiagnosticCollection;
-  private astDocs: Map<string, ASTDocument>;
   // Tiene traccia della riga attiva (della run precedente) per ogni documento
   private lastActiveLine: Map<string, number>;
+  private astDocServ: ASTDocumentService;
 
   private constructor() {
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection('td');
-    this.astDocs = new Map();
     this.lastActiveLine = new Map();
+    this.astDocServ = ASTDocumentService.getInstance();
   }
 
   public static getInstance(): DiagnosticsRunner {
@@ -19,18 +19,6 @@ export class DiagnosticsRunner {
       DiagnosticsRunner.instance = new DiagnosticsRunner();
     }
     return DiagnosticsRunner.instance;
-  }
-
-  /**
-   * Recupera o crea l'ASTDocument associato al documento.
-   */
-  private getAstDoc(document: vscode.TextDocument): ASTDocument {
-    const key = document.uri.toString();
-    if (!this.astDocs.has(key)) {
-      const astDoc = new ASTDocument(document.getText());
-      this.astDocs.set(key, astDoc);
-    }
-    return this.astDocs.get(key)!;
   }
 
   /**
@@ -43,7 +31,7 @@ export class DiagnosticsRunner {
   public runDiagnostics(document: vscode.TextDocument, changes?: Record<number, string>): void {
     if (document.languageId !== 'td') return;
     const key = document.uri.toString();
-    const astDoc = this.getAstDoc(document);
+    const astDoc = this.astDocServ.get(key, document.getText());
 
     // Imposta le opzioni di indentazione dal documento attivo (se presente)
     const editor = vscode.window.activeTextEditor;
@@ -58,7 +46,7 @@ export class DiagnosticsRunner {
       astDoc.updateLines(changes);
     }
 
-    astDoc.printTree(); // Debug: stampa l'AST
+    astDoc.printTree(undefined, false); // Debug: stampa l'AST
 
     // Calcola i diagnostics dall'AST
     const computedDiagnostics = astDoc.getDiagnostics();

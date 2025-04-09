@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TD Todo Filtri</title>
+    <!-- Collegamento al CSS locale (puoi spostare questo file in src/ui oppure tenerlo in media/webview) -->
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Acquisizione dell'API VSCode per la comunicazione
+      const vscode = acquireVsCodeApi();
+      // Qui potresti salvare lo stato iniziale, se necessario:
+      // window.initialAst = { ... };
+    </script>
+    <!-- Carica il file TypeScript di ingresso: Vite lo tratterà come modulo -->
+    <script type="module" src="/src/ui/index.tsx"></script>
+  </body>
+</html>

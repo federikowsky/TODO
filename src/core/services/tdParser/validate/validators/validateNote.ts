@@ -1,5 +1,5 @@
 // src/core/services/tdParser/validators/validateNote.ts
-import { NoteNode, Diagnostic } from '../../ast/types';
+import { NoteNode, Diagnostic } from '../../types';
 import { stripInlineComment } from '../../utils/stripInlineComment';
 
 const errorMessages: { [code: string]: string } = {

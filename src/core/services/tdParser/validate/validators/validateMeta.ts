@@ -1,5 +1,5 @@
 // src/core/services/tdParser/validators/validateMeta.ts
-import { MetadataNode, Diagnostic } from '../../ast/types';
+import { MetadataNode, Diagnostic } from '../../types';
 import { stripInlineComment } from '../../utils/stripInlineComment';
 
 export function validateMeta(node: MetadataNode): Diagnostic[] {

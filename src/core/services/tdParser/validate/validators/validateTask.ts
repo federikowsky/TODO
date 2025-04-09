@@ -1,5 +1,5 @@
 // src/core/services/tdParser/validators/validateTask.ts
-import { TaskNode, Diagnostic } from '../../ast/types';
+import { TaskNode, Diagnostic } from '../../types';
 import { stripInlineComment } from '../../utils/stripInlineComment';
 
 export function validateTask(node: TaskNode): Diagnostic[] {

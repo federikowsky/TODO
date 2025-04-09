@@ -1,8 +1,25 @@
-import { RootNode, ASTNode, Diagnostic } from './ast/types';
+import * as vscode from 'vscode';
+import { RootNode, ASTNode, Diagnostic, TaskNode } from './types';
 import { parseLineToNode } from './parseLine/parseLine';
-import { ASTRepository } from './repository/ASTRepository';
-import { ContextManager } from './context/ContextManager';
+import { ASTRepository } from './ASTRepository';
+import { ContextManager } from './ContextManager';
 import { ASTFinalizer } from './validate/finalize';
+
+
+
+/**
+ * Rappresenta un cambiamento in una riga del documento.
+ * - line: numero di riga
+ * - oldNode: nodo preesistente (null se non presente)
+ * - newText: nuovo testo della riga
+ * - newNode: nuovo nodo risultante dal parsing (null se non valido)
+ */
+export interface LineChange {
+  line: number;
+  oldNode: ASTNode | null;
+  newText: string;
+  newNode: ASTNode | null;
+}
 
 /**
  * ASTDocument:
@@ -16,6 +33,7 @@ export class ASTDocument {
   private finalizer: ASTFinalizer;
   private lines: string[];
   private diagnostics: Diagnostic[] = [];
+  private astDocs: Map<string, ASTDocument>;
 
   constructor(initialContent: string) {
     // Salviamo le linee dell'input
@@ -24,11 +42,20 @@ export class ASTDocument {
     this.repo = new ASTRepository(this.lines.length);
     this.ctx = new ContextManager(this.repo, this.lines);
     this.finalizer = new ASTFinalizer();
+    this.astDocs = new Map();
 
     // Simuliamo un update su tutte le linee per ottenere l'AST iniziale
     const allChanges: Record<number, string> = {};
     this.lines.forEach((text, i) => (allChanges[i] = text));
     this.updateLines(allChanges);
+  }
+
+  public getIstance(key: string, document: vscode.TextDocument): ASTDocument | undefined {
+    if (!this.astDocs.has(key)) {
+      const astDoc = new ASTDocument(document.getText());
+      this.astDocs.set(key, astDoc);
+    }
+    return this.astDocs.get(key)!;
   }
 
   /**
@@ -110,7 +137,7 @@ export class ASTDocument {
   private finalizeDiagnostics(changedLines: number[]) {
     const threshold = Math.ceil(this.lines.length * 0.4);
     if (changedLines.length >= threshold) {
-      this.diagnostics = this.finalizer.finalizeFull(this.repo.root, []);
+      this.diagnostics = this.finalizer.finalizeFull(this.repo.root);
     } else {
       this.diagnostics = this.finalizer.finalizeIncremental(
         this.repo.root,
@@ -133,25 +160,29 @@ export class ASTDocument {
     const maxLine = Math.max(...changedLines);
     this.ensureLineCapacity(maxLine);
 
-    for (const line of changedLines) {
+    // snapshot delle righe cambiate
+    const changes: LineChange[] = changedLines.map(line => {
       const raw = changed[line] ?? '';
-      const text = raw.trimEnd();
-      this.lines[line] = text;
-
+      const newText = raw.trimEnd();
       const oldNode = this.repo.getNodeAtLine(line);
-      const { node: newNode } = parseLineToNode(text, line);
+      const { node: newNode } = parseLineToNode(newText, line);
+      return { line, oldNode, newText, newNode };
+    });
 
-      if (!newNode || !text) {
-        if (oldNode) this.handleRemove(line, oldNode);
-        continue;
-      }
+    for (const { line, oldNode, newText, newNode } of changes) {
+      this.lines[line] = newText;
 
-      if (!oldNode) {
+      // Gestione casi in ordine di priorità
+      if (oldNode && (!newNode || !newText)) {
+        // Nodo rimosso o invalidato
+        this.handleRemove(line, oldNode);
+      } else if (newNode && !oldNode) {
+        // Nuovo nodo aggiunto
         this.handleInsert(line, newNode);
-        continue;
+      } else if (newNode && oldNode) {
+        // Nodo aggiornato
+        this.handleUpdate(line, oldNode, newNode);
       }
-
-      this.handleUpdate(line, oldNode, newNode);
     }
 
     this.finalizeDiagnostics(changedLines);
@@ -185,12 +216,42 @@ export class ASTDocument {
   /**
    * printTree: debug per mostrare la struttura AST
    */
-  public printTree(node: ASTNode = this.repo.root): void {
+  public printTree(node: ASTNode = this.repo.root, deep: boolean = false): void {
     let result = '\n';
+
     const traverse = (node: ASTNode, depth: number = 0) => {
-      result += `${'  '.repeat(depth)}${node.text.trim()} (${node.range.startLine}:${node.range.endLine}) [${node.id}] [${node.parent?.id}]\n`;
+      const indent = '  '.repeat(depth);
+
+      if (!deep) {
+        result += `${indent}${node.text.trim()} (${node.range.startLine}:${node.range.endLine}) [${node.id}] [${node.parent?.id}]\n`;
+      } else {
+        result += `${indent}{\n`
+        result += `${indent} ID: ${node.id}\n`;
+        result += `${indent} Type: ${node.type}\n`;
+        result += `${indent} Text: ${node.text.trim()}\n`;
+        result += `${indent} Range: (${node.range.startLine}:${node.range.endLine})\n`;
+        result += `${indent} Parent ID: ${node.parent?.id ?? 'None'}\n`;
+
+        if (node.type === 'task') {
+          const taskNode = node as TaskNode;
+          result += `${indent} Priority: ${taskNode.priority}\n`;
+          result += `${indent} Status: ${taskNode.status}\n`;
+          result += `${indent} Indent: ${taskNode.indent}\n`;
+          result += `${indent} Meta: ${JSON.stringify(taskNode.meta, null, 2)}\n`;
+
+          if (taskNode.notes.length > 0) {
+            result += `${indent} Notes:\n`;
+            taskNode.notes.forEach((note, index) => {
+              result += `${indent}  [Note ${index + 1}] ${note.text.trim()} (Line: ${note.range.startLine})\n`;
+            });
+          }
+        }
+        result += `${indent}}\n`
+      }
+
       node.children.forEach(child => traverse(child, depth + 1));
     };
+
     traverse(node);
     console.log(result);
   }

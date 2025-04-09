@@ -1,9 +1,9 @@
 // src/core/services/tdParser/parseLine/parseLine.ts
-import { ASTNode, Diagnostic } from '../ast/types';
+import { ASTNode, Diagnostic } from '../types';
 import { buildSectionNode, buildNoteNode, buildDefaultsNode, buildMetaNode, buildTaskNode } from './buildNode';
 
 export interface ParseLineResult {
-  node?: ASTNode;
+  node: ASTNode | null;
   diagnostics: Diagnostic[];
 }
 
@@ -21,7 +21,7 @@ export function parseLineToNode(rawLine: string, lineNumber: number): ParseLineR
 
   // Se la riga è vuota, non crea nodo
   if (!trimmed) {
-    return { diagnostics: [] };
+    return { node: null, diagnostics: [] };
   }
 
   // Pattern matching:
@@ -47,5 +47,5 @@ export function parseLineToNode(rawLine: string, lineNumber: number): ParseLineR
     severity: 'error',
     code: 'UNRECOGNIZED_LINE'
   });
-  return { diagnostics };
+  return { node: null, diagnostics };
 }
