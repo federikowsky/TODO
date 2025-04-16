@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ASTDocumentService } from '../../../core/services/tdParser/ASTDocumentService';
+import { FilterManager, FilterOptions } from '../../../core/services/tdParser/FilterManager';
 
 export class DiagnosticsRunner {
   private static instance: DiagnosticsRunner;
@@ -46,7 +47,13 @@ export class DiagnosticsRunner {
       astDoc.updateLines(changes);
     }
 
-    astDoc.printTree(undefined, false); // Debug: stampa l'AST
+    astDoc.printTree(); // Debug: stampa l'AST
+
+    // TEMP FILTER MANAGER
+    const filterManager = new FilterManager();
+    const filterOptions: FilterOptions = {
+    };
+    const filteredAST = filterManager.getFilteredTree(astDoc.getRoot(), filterOptions);
 
     // Calcola i diagnostics dall'AST
     const computedDiagnostics = astDoc.getDiagnostics();

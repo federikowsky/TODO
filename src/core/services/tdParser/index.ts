@@ -216,39 +216,12 @@ export class ASTDocument {
   /**
    * printTree: debug per mostrare la struttura AST
    */
-  public printTree(node: ASTNode = this.repo.root, deep: boolean = false): void {
+  public printTree(node: ASTNode = this.repo.root): void {
     let result = '\n';
 
     const traverse = (node: ASTNode, depth: number = 0) => {
       const indent = '  '.repeat(depth);
-
-      if (!deep) {
         result += `${indent}${node.text.trim()} (${node.range.startLine}:${node.range.endLine}) [${node.id}] [${node.parent?.id}]\n`;
-      } else {
-        result += `${indent}{\n`
-        result += `${indent} ID: ${node.id}\n`;
-        result += `${indent} Type: ${node.type}\n`;
-        result += `${indent} Text: ${node.text.trim()}\n`;
-        result += `${indent} Range: (${node.range.startLine}:${node.range.endLine})\n`;
-        result += `${indent} Parent ID: ${node.parent?.id ?? 'None'}\n`;
-
-        if (node.type === 'task') {
-          const taskNode = node as TaskNode;
-          result += `${indent} Priority: ${taskNode.priority}\n`;
-          result += `${indent} Status: ${taskNode.status}\n`;
-          result += `${indent} Indent: ${taskNode.indent}\n`;
-          result += `${indent} Meta: ${JSON.stringify(taskNode.meta, null, 2)}\n`;
-
-          if (taskNode.notes.length > 0) {
-            result += `${indent} Notes:\n`;
-            taskNode.notes.forEach((note, index) => {
-              result += `${indent}  [Note ${index + 1}] ${note.text.trim()} (Line: ${note.range.startLine})\n`;
-            });
-          }
-        }
-        result += `${indent}}\n`
-      }
-
       node.children.forEach(child => traverse(child, depth + 1));
     };
 
