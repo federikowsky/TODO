@@ -3,7 +3,6 @@ import { RootNode, ASTNode, Diagnostic, TaskNode } from './types';
 import { parseLineToNode } from './parseLine/parseLine';
 import { ASTRepository } from './ASTRepository';
 import { ContextManager } from './ContextManager';
-import { ASTFinalizer } from './validate/finalize';
 
 
 
@@ -30,7 +29,6 @@ export interface LineChange {
 export class ASTDocument {
   private repo: ASTRepository;
   private ctx: ContextManager;
-  private finalizer: ASTFinalizer;
   private lines: string[];
   private diagnostics: Diagnostic[] = [];
   private astDocs: Map<string, ASTDocument>;
@@ -41,7 +39,6 @@ export class ASTDocument {
     // Inizializziamo repository, context e validazione
     this.repo = new ASTRepository(this.lines.length);
     this.ctx = new ContextManager(this.repo, this.lines);
-    this.finalizer = new ASTFinalizer();
     this.astDocs = new Map();
 
     // Simuliamo un update su tutte le linee per ottenere l'AST iniziale
@@ -76,7 +73,6 @@ export class ASTDocument {
    */
   public setIndentConfig(unit: number, spaces: boolean) {
     this.ctx.setIndentSettings(unit, spaces);
-    this.finalizer.setIndentSettings(unit, spaces);
   }
 
   /**
@@ -134,19 +130,17 @@ export class ASTDocument {
    * - Se >= 40% delle linee cambiate, fa una validazione full.
    * - Altrimenti, fa una validazione incrementale.
    */
-  private finalizeDiagnostics(changedLines: number[]) {
-    const threshold = Math.ceil(this.lines.length * 0.4);
-    if (changedLines.length >= threshold) {
-      this.diagnostics = this.finalizer.finalizeFull(this.repo.root);
-    } else {
-      this.diagnostics = this.finalizer.finalizeIncremental(
-        this.repo.root,
-        this.diagnostics,
-        changedLines,
-        (ln) => this.repo.getNodeAtLine(ln)
-      );
-    }
-  }
+  // private finalizeDiagnostics(changedLines: number[]) {
+  //   const threshold = Math.ceil(this.lines.length * 0.4);
+  //   const mode: FinalizeMode = changedLines.length >= threshold ? 'full' : 'incremental';
+  //   this.diagnostics = this.finalizer.finalize(
+  //     mode,
+  //     this.repo.root,
+  //     this.diagnostics,
+  //     changedLines,
+  //     (ln) => this.repo.getNodeAtLine(ln)
+  //   );
+  // }
 
   /**
    * updateLines: aggiorna l'AST in base alle righe modificate.
@@ -185,7 +179,11 @@ export class ASTDocument {
       }
     }
 
-    this.finalizeDiagnostics(changedLines);
+    /**
+     * Gestisci la validazione dei nodi cambiati.
+     * Da sistemare la funzione e trovarne un'utilità.
+     */
+    // this.finalizeDiagnostics(changedLines);
     this.trimTrailingEmptyLines();
 
     return this.diagnostics;
@@ -216,39 +214,12 @@ export class ASTDocument {
   /**
    * printTree: debug per mostrare la struttura AST
    */
-  public printTree(node: ASTNode = this.repo.root, deep: boolean = false): void {
+  public printTree(node: ASTNode = this.repo.root): void {
     let result = '\n';
 
     const traverse = (node: ASTNode, depth: number = 0) => {
       const indent = '  '.repeat(depth);
-
-      if (!deep) {
         result += `${indent}${node.text.trim()} (${node.range.startLine}:${node.range.endLine}) [${node.id}] [${node.parent?.id}]\n`;
-      } else {
-        result += `${indent}{\n`
-        result += `${indent} ID: ${node.id}\n`;
-        result += `${indent} Type: ${node.type}\n`;
-        result += `${indent} Text: ${node.text.trim()}\n`;
-        result += `${indent} Range: (${node.range.startLine}:${node.range.endLine})\n`;
-        result += `${indent} Parent ID: ${node.parent?.id ?? 'None'}\n`;
-
-        if (node.type === 'task') {
-          const taskNode = node as TaskNode;
-          result += `${indent} Priority: ${taskNode.priority}\n`;
-          result += `${indent} Status: ${taskNode.status}\n`;
-          result += `${indent} Indent: ${taskNode.indent}\n`;
-          result += `${indent} Meta: ${JSON.stringify(taskNode.meta, null, 2)}\n`;
-
-          if (taskNode.notes.length > 0) {
-            result += `${indent} Notes:\n`;
-            taskNode.notes.forEach((note, index) => {
-              result += `${indent}  [Note ${index + 1}] ${note.text.trim()} (Line: ${note.range.startLine})\n`;
-            });
-          }
-        }
-        result += `${indent}}\n`
-      }
-
       node.children.forEach(child => traverse(child, depth + 1));
     };
 

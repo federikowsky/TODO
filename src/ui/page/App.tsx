@@ -1,38 +1,29 @@
-// src/App.tsx
-import React, { useState, useMemo } from 'react';
-import FilterPanel from '../components/FilterPanel';
-import AstTreeView from '../components/AstTreeView';
+import React, { useState } from 'react';
+import { ASTProvider } from '../context/ASTProvider';
+import Sidebar from '../sidebar/Sidebar';
 import { FilterManager, FilterOptions } from '../../core/services/tdParser/FilterManager';
 import { ASTNode } from '../../core/services/tdParser/types';
 
 interface AppProps {
-  ast: ASTNode;
+  initialAst: ASTNode | null;
 }
 
-const App: React.FC<AppProps> = ({ ast }) => {
-  // Stato dei filtri, inizializzato con valori di default.
+const App: React.FC<AppProps> = ({ initialAst }) => {
   const [filters, setFilters] = useState<FilterOptions>({
     sections: false,
     metaTag: undefined,
     status: undefined,
     priority: undefined,
     hasNotes: false,
+    search: '',
   });
 
-  // Creazione istanza singola del FilterManager
-  const filterManager = useMemo(() => new FilterManager(), []);
-
-  // Calcola i nodi filtrati, ricalcolando solo al variare dell’AST o delle opzioni filtro
-  const filteredNodes = useMemo(() => filterManager.getFilteredNodes(ast, filters), [ast, filters, filterManager]);
+  const filterManager = new FilterManager();
 
   return (
-    <div className="app-container">
-      {/* Pannello dei filtri, sia per impostare le opzioni che per modificare il filtering dinamicamente */}
-      <FilterPanel filters={filters} onFilterChange={setFilters} />
-
-      {/* Visualizzazione ricorsiva dell’albero filtrato */}
-      <AstTreeView nodes={filteredNodes} />
-    </div>
+    <ASTProvider initialAst={initialAst}>
+      <Sidebar filters={filters} onFilterChange={setFilters} filterManager={filterManager} />
+    </ASTProvider>
   );
 };
 

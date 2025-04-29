@@ -7,7 +7,7 @@ import * as vscode from 'vscode';
 export const tdFoldingProvider: vscode.FoldingRangeProvider = {
   provideFoldingRanges(document: vscode.TextDocument): vscode.ProviderResult<vscode.FoldingRange[]> {
     const foldingRanges: vscode.FoldingRange[] = [];
-    const headerRegex = /^(#{1,3})\s+(.*)$/;
+    const headerRegex = /^(#{1,3})\s*(.*)$/;
 
     const headerStack: { line: number, level: number }[] = [];
 
@@ -54,3 +54,24 @@ export const tdFoldingProvider: vscode.FoldingRangeProvider = {
     return foldingRanges;
   }
 };
+
+export function registerFoldingRefresh(context: vscode.ExtensionContext) {
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument(event => {
+      if (event.document.languageId !== 'td') return;
+
+      // Triggera un aggiornamento del folding SILENZIOSO:
+      // cambia una proprietà del documento per attivare il provider senza effetti visivi
+      const editor = vscode.window.activeTextEditor;
+      if (!editor || editor.document !== event.document) return;
+
+      // Trucchetto: simula una modifica del decoratore (che non modifica il contenuto),
+      // così da forzare il ricalcolo del folding.
+      const start = new vscode.Position(0, 0);
+      const end = new vscode.Position(0, 0);
+      const range = new vscode.Range(start, end);
+
+      editor.setDecorations(vscode.window.createTextEditorDecorationType({}), [{ range }]);
+    })
+  );
+}
