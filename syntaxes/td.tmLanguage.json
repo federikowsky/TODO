@@ -2,6 +2,7 @@
     "name": "TD Todo",
     "scopeName": "source.td",
     "fileTypes": ["td", "todo"],
+    "firstLineMatch": "^TODO$",
     "patterns": [
       {
         "name": "markup.heading.td",
@@ -33,11 +34,11 @@
       },
       {
         "name": "markup.note.blockquote.td",
-        "match": "^> .*"
+        "match": "\\s+> .*"
       },
       {
         "name": "comment.line.double-slash.td",
-        "match": "((//+)|(--+)).*"
+        "match": "(--+).*"
       },
       {
         "name": "invalid.illegal.double-exclam.td",

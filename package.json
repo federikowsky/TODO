@@ -6,11 +6,35 @@
 	"engines": {
 		"vscode": "^1.98.0"
 	},
+	"activationEvents": ["onStartupFinished"],
 	"categories": [
 		"Programming Languages"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"languages": [
+			{
+				"id": "td",
+				"aliases": [
+					"TD"
+				],
+				"extensions": [
+					".td",
+					".todo"
+				],
+				"filenames": [
+					"TODO"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "td",
+				"scopeName": "source.td",
+				"path": "./syntaxes/td.tmLanguage.json"
+			}
+		],
 		"commands": [
 			{
 				"command": "td-todo.enableColors",
@@ -72,47 +96,7 @@
 				"key": "ctrl+shift+d",
 				"when": "editorTextFocus && editorLangId == 'td'"
 			}
-		],
-		"languages": [
-			{
-				"id": "td",
-				"aliases": [
-					"TD Todo",
-					"td"
-				],
-				"extensions": [
-					".td",
-					".todo"
-				],
-				"configuration": "./language-configuration.json"
-			}
-		],
-		"grammars": [
-			{
-				"language": "td",
-				"scopeName": "source.td",
-				"path": "./syntaxes/td.tmLanguage.json"
-			}
-		],
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "sidebar-todo",
-					"title": "TD Todo",
-					"icon": "media/icon/td-icon-256x256.png"
-				}
-			]
-		},
-		"views": {
-			"sidebar-todo": [
-				{
-					"type": "webview",
-					"id": "td-todo.tdWebFilters",
-					"name": "TD Filtri Collassabili",
-					"icon": "media/icon/td-icon-256x256.png"
-				}
-			]
-		}
+		]
 	},
 	"scripts": {
 		"dev": "vite",
@@ -123,9 +107,9 @@
 		"@types/node": "^22.14.0",
 		"@types/react": "^19.1.0",
 		"@types/react-dom": "^19.1.2",
+		"@vitejs/plugin-react": "^4.3.4",
 		"@types/uuid": "^10.0.0",
 		"@types/vscode": "^1.98.0",
-		"@vitejs/plugin-react": "^4.3.4",
 		"typescript": "^5.8.2",
 		"vite": "^6.2.5"
 	},
